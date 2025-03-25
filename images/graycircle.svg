@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="13.873" height="13.873" viewBox="0 0 13.873 13.873">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke: #bababa;
+      }
+    </style>
+  </defs>
+  <circle id="gray_circle" data-name="gray circle" class="cls-1" cx="6.436" cy="6.436" r="6.436" transform="translate(0.5 0.5)"/>
+</svg>

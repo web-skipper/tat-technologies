@@ -1,0 +1,1 @@
+<img src="<?php echo get_template_directory_uri(); ?>/images/5Ywarranty.png" alt="Warranty" class="img-responsive" />

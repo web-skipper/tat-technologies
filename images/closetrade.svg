@@ -1,0 +1,21 @@
+<svg id="popup_close_w_circle" data-name="popup close w circle" xmlns="http://www.w3.org/2000/svg" width="41" height="41" viewBox="0 0 41 41">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+        stroke: #9fb2b8;
+      }
+
+      .cls-1, .cls-2 {
+        stroke-width: 2px;
+      }
+
+      .cls-2 {
+        fill: none;
+        stroke: #000;
+      }
+    </style>
+  </defs>
+  <circle id="Ellipse_2" data-name="Ellipse 2" class="cls-1" cx="19.5" cy="19.5" r="19.5" transform="translate(1 1)"/>
+  <path id="Path_115" data-name="Path 115" class="cls-2" d="M28,13,13,28m0-15L28,28"/>
+</svg>
