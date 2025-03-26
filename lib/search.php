@@ -1,97 +1,218 @@
 <?php
-
 add_action('wp_head', 'add_search_feature');
 
 function add_search_feature() {
     ?>
     <div class="hsearchform hidden">
         <form id="search-form" action="<?php echo home_url('/'); ?>" method="get">
-            <input type="text" name="s" placeholder="Search...">
+            <input class="one" id="search-input" type="text" name="s" placeholder="Search TAT Technologies"
+                autocomplete="off">
             <button type="submit" id="search">
-                <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 19 19" fill="none">
-                    <path
-                        d="M8.375 14.75C11.8958 14.75 14.75 11.8958 14.75 8.375C14.75 4.8542 11.8958 2 8.375 2C4.8542 2 2 4.8542 2 8.375C2 11.8958 4.8542 14.75 8.375 14.75Z"
-                        stroke="white" stroke-width="1.5" stroke-linejoin="round" />
-                    <path d="M12.958 12.9581L16.14 16.1401" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 16L18 12M18 12L14 8M18 12L6 12" stroke="white" stroke-linecap="round"
                         stroke-linejoin="round" />
                 </svg>
             </button>
         </form>
-        <span class="close-search-form">
-            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 19 19" fill="none">
-                <path d="M4.75 4.75L14.25 14.25" stroke="white" stroke-width="1.5" stroke-linecap="round"
-                    stroke-linejoin="round" />
-                <path d="M14.25 4.75L4.75 14.25" stroke="white" stroke-width="1.5" stroke-linecap="round"
-                    stroke-linejoin="round" />
-            </svg>
-        </span>
+        <div id="search-results" class="search-results-dropdown"></div>
+        <div class="clr"></div>
         <style>
-            .hidden {
-                display: none !important;
-            }
-
+            /* Search form styles */
             .hsearchform {
+                min-height: 400px;
                 position: absolute;
-                top: 0;
+                top: 81px;
                 left: 0;
                 width: 100%;
-                background: #2e313f;
-                z-index: 1000;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 10px 0;
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                background: #2E313F;
+                z-index: 9;
+                padding: 186px 70px 50px 70px;
+                overflow: visible;
+                /* Important for dropdown visibility */
             }
 
-            .hsearchform form {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                max-width: 800px;
-                /* Adjust based on preference */
-                margin: 0 auto;
-                width: 100%;
+            .search-results-dropdown {
+                float: right;
+                display: block;
+                width: 1175px;
+                position: relative;
                 background: #fff;
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                overflow: hidden;
+                border-top: 1px solid #4A4F60;
+                z-index: 10;
+                max-height: 500px;
+                overflow-y: auto;
+                display: none;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
             }
 
-            .hsearchform input {
-                flex: 1;
-                height: 50px;
-                padding: 0 15px;
+            .search-results-dropdown.has-results {
+                display: block;
+            }
+
+            .ajax-search-results {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+
+            .ajax-search-results li {
+                padding: 15px 20px;
+                border-bottom: 1px solid #f0f0f0;
+            }
+
+            .ajax-search-results li a {
+                color: #3A3E4D;
+                text-decoration: none;
+                display: block;
                 font-size: 16px;
-                border: none;
-                outline: none;
+                transition: all 0.3s ease;
             }
 
-            .hsearchform button {
-                width: 60px;
-                height: 50px;
-                background: #333;
-                color: white;
-                border: none;
-                cursor: pointer;
-                transition: background 0.3s ease;
+            .ajax-search-results li:hover {
+                background-color: #f5f5f5;
             }
 
-            .hsearchform button:hover {
-                background: #555;
+            .ajax-search-results li a:hover {
+                color: #0066cc;
+            }
+
+            .view-all-results {
+                padding: 15px;
+                text-align: center;
+                background: #f5f5f5;
+                border-top: 1px solid #e0e0e0;
+            }
+
+            .view-all-results a {
+                color: #0066cc;
+                text-decoration: none;
+                font-weight: bold;
+            }
+
+            /* Loading spinner */
+            .search-loading {
+                padding: 20px;
+                text-align: center;
+            }
+
+            .search-spinner {
+                display: inline-block;
+                width: 30px;
+                height: 30px;
+                border: 3px solid rgba(0, 0, 0, 0.1);
+                border-radius: 50%;
+                border-top-color: #3A3E4D;
+                animation: spin 1s ease-in-out infinite;
+            }
+
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .no-results,
+            .search-error {
+                padding: 20px;
+                text-align: center;
+                color: #666;
             }
         </style>
         <script>
             jQuery(document).ready(function ($) {
+                /**
+                 * Toggle Search Form
+                 */
                 $(document).on("click", ".hsearch a", function () {
-                    $(document).find('.hsearchform').removeClass('hidden');
-                });
-                $(document).on("click", ".close-search-form", function () {
-                    $(document).find('.hsearchform').addClass('hidden');
+                    $(document).find('.hsearchform').toggleClass('hidden');
+                    $('body').toggleClass('bodysact');
+                    if (!$('.hsearchform').hasClass('hidden')) {
+                        $('#search-input').focus();
+                    }
                 });
 
+                /**
+                 * Search form AJAX action
+                 */
+                var searchTimer;
+                $('#search-input').on('input', function () {
+                    clearTimeout(searchTimer);
+                    var searchQuery = $(this).val().trim();
+
+                    if (searchQuery.length < 2) {
+                        $('#search-results').html('').removeClass('has-results');
+                        return;
+                    }
+
+                    searchTimer = setTimeout(function () {
+                        $.ajax({
+                            url: '<?php echo admin_url("admin-ajax.php"); ?>',
+                            type: 'POST',
+                            data: {
+                                action: 'ajax_search',
+                                s: searchQuery
+                            },
+                            beforeSend: function () {
+                                $('#search-results').html('<div class="search-loading"><div class="search-spinner"></div></div>').addClass('has-results');
+                            },
+                            success: function (response) {
+                                $('#search-results').html(response).addClass('has-results');
+                            },
+                            error: function () {
+                                $('#search-results').html('<div class="search-error">Error loading results</div>').addClass('has-results');
+                            }
+                        });
+                    }, 300);
+                });
+
+                // Close results when clicking outside
+                $(document).on('click', function (e) {
+                    if (!$(e.target).closest('.hsearchform').length) {
+                        $('#search-results').html('').removeClass('has-results');
+                    }
+                });
+
+                // Prevent form submission (we're using AJAX)
+                $('#search-form').on('submit', function (e) {
+                    e.preventDefault();
+                    var searchQuery = $('#search-input').val().trim();
+                    if (searchQuery.length > 0) {
+                        window.location.href = '<?php echo home_url('/'); ?>?s=' + encodeURIComponent(searchQuery);
+                    }
+                });
             });
         </script>
     </div>
     <?php
+}
+
+add_action('wp_ajax_ajax_search', 'ajax_search');
+add_action('wp_ajax_nopriv_ajax_search', 'ajax_search');
+
+function ajax_search() {
+    $search_query = sanitize_text_field($_POST['s']);
+
+    $args = array(
+        'post_type' => array('post', 'page'), // Add any custom post types if needed
+        'post_status' => 'publish',
+        's' => $search_query,
+        'posts_per_page' => 5,
+    );
+
+    $search = new WP_Query($args);
+
+    if ($search->have_posts()) {
+        echo '<ul class="ajax-search-results">';
+        while ($search->have_posts()) {
+            $search->the_post();
+            echo '<li><a href="' . get_permalink() . '">' . get_the_title() . '</a></li>';
+        }
+        echo '</ul>';
+        echo '<div class="view-all-results"><a href="' . home_url('/?s=' . urlencode($search_query)) . '">View all results</a></div>';
+    } else {
+        echo '<div class="no-results">No results found for "' . esc_html($search_query) . '"</div>';
+    }
+
+    wp_reset_postdata();
+    die();
 }
