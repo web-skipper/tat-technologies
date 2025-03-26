@@ -65,7 +65,12 @@ $pid = $post->ID; ?>
                                     src="<?php echo $location['left_image']['url']; ?>" />
                             <?php endif; ?>
                             <div class="map-container">
-                                <?= $location['left_map']; ?>
+                                <?php
+                                $iframe = $location['left_map'];
+                                // $iframe = preg_replace('/(src="[^"]*)/', '$1&zoom=21"', $iframe, 1);
+                                $iframe = adjust_google_maps_zoom($iframe, 411);
+                                ?>
+                                <?= $iframe; ?>
                                 <!-- <img src="https://wordpress-733529-5298257.cloudwaysapps.com/wp-content/uploads/2025/03/pin-tat.png"
                                     alt="Custom Pin" class="custom-pin"> -->
                                 <!-- <div class="map-overlay"></div> -->
@@ -118,7 +123,17 @@ $pid = $post->ID; ?>
 
 </div>
 
-
+<?php
+function adjust_google_maps_zoom($iframe, $zoom_level = 10) {
+    // Ensure the iframe contains a Google Maps embed link
+    if (strpos($iframe, 'www.google.com/maps/embed?pb=') !== false) {
+        // Adjust the zoom by replacing the appropriate number in pb parameter
+        $iframe = preg_replace('/(\!1d)(\d+\.\d+)/', '!1d' . ($zoom_level * 1000), $iframe, 1);
+        $iframe = preg_replace('/(src="[^"]*)/', '$1&maptype=roadmap"', $iframe, 1);
+    }
+    return $iframe;
+}
+?>
 <?php get_footer(); ?>
 
 <style>
@@ -162,7 +177,6 @@ $pid = $post->ID; ?>
         /* Transparent overlay */
         z-index: 10;
         /* Ensure it's on top of the iframe */
-    }
     }
 </style>
 
