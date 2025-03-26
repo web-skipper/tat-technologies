@@ -9,7 +9,6 @@ $pid = $post->ID; ?>
 
         <div class="breadcrumbs">
             <a href="<?php bloginfo('url'); ?>">Home</a><span class="breadarow"></span>
-            <a href="#">Commercial</a>
             <?php if (function_exists('bcn_display')) {
                 bcn_display();
             } ?>
