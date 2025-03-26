@@ -8,7 +8,7 @@ $pid = $post->ID; ?>
     <div class="mroban">
 
         <div class="breadcrumbs">
-            <a href="<?php bloginfo('url'); ?>">Home</a><span class="breadarow"></span>
+            <a href="<?php bloginfo('url'); ?>">Home</a>
             <?php if (function_exists('bcn_display')) {
                 bcn_display();
             } ?>
