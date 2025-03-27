@@ -22,7 +22,9 @@ $pid = $post->ID; ?>
     }
 
     .hometwo {
+        height: 100vh;
         position: relative;
+        overflow: hidden;
     }
 
     html.has-scroll-smooth {
@@ -97,15 +99,51 @@ $pid = $post->ID; ?>
         opacity: 0;
         pointer-events: none;
     }
-	.fade-effect {
-    opacity: 0;
-    transform: translateY(60px);
-	}
-	.effect-show, #hometwo1 .fade-effect {
-		opacity: 1;
-		transform: translateY(0);
-		transition: opacity 1s, transform 1s;
-	}
+
+    .fade-effect {
+        opacity: 0;
+        transform: translateY(60px);
+    }
+
+    .effect-show,
+    #hometwo1 .fade-effect {
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 1s, transform 1s;
+    }
+
+    .htwotxt {
+        position: absolute;
+        /* Now relative to .hometwo */
+        bottom: 100px;
+        right: 0;
+        z-index: 10;
+        width: auto;
+        /* Adjust as needed */
+        transition: none;
+        /* Remove any transitions affecting position */
+    }
+
+    /* If you have interactive elements inside htwotxt */
+    .htwotxt * {
+        pointer-events: auto;
+    }
+
+    .htwoimg {
+        position: relative;
+        height: 100vh;
+        z-index: 1;
+        /* Below the text */
+    }
+
+    .htwoimg img {
+        position: absolute;
+        width: 100%;
+        height: 100vh;
+        object-fit: cover;
+        transform: translate3d(0, 0, 0);
+        /* Helps with performance */
+    }
 </style>
 
 <div id="main" data-scroll-container>
@@ -164,63 +202,50 @@ $pid = $post->ID; ?>
         </div>
         <?php endif; 
         **/ ?>
-        <div class="home_mian_vslide">
+        <div class="home_mian_vslide" data-scroll-container>
+            <?php $flag = 1;
+            $flag_new = 2;
+            ?>
             <?php if (have_rows('mid_boxes_detail', $pid)): ?>
-                <?php $flag = 1;
-                $flag_new = 2;
-                while (have_rows('mid_boxes_detail', $pid)):
+                <?php while (have_rows('mid_boxes_detail', $pid)):
                     the_row();
                     $midimage = get_sub_field('midimage');
-					$midimage_mob = get_sub_field('midimage_mob');
-					$midimage_mobtwo = get_sub_field('midimage_mobtwo');
+                    $midimage_mob = get_sub_field('midimage_mob');
+                    $midimage_mobtwo = get_sub_field('midimage_mobtwo');
                     $midtitleone = get_sub_field('midtitleone');
                     $midtitle_two = get_sub_field('midtitle_two');
                     $midtext = get_sub_field('midtext');
                     $midlink = get_sub_field('midlink'); ?>
-                    <?php if ($midimage != "") { ?>
-                        <div class="hometwo" id="hometwo<?php echo $flag; ?>">
-                            <div class="hometwodiv section-2x-height-text">
-                                <div class="htwoimg" data-scroll data-scroll-speed="-3">
-                                	<img class="one" alt="<?php echo $midimage['alt']; ?>" src="<?php echo $midimage['url']; ?>" />
-                                    <img class="two" alt="<?php echo $midimage_mob['alt']; ?>" src="<?php if ($midimage_mob != "") { ?><?php echo $midimage_mob['url']; ?><?php } else { ?><?php echo $midimage['url']; ?><?php } ?>" />
-                                    <img class="three" alt="<?php echo $midimage_mobtwo['alt']; ?>" src="<?php if ($midimage_mobtwo != "") { ?><?php echo $midimage_mobtwo['url']; ?><?php } else { ?><?php echo $midimage_mob['url']; ?><?php } ?>" />
-                                </div>
-                                <div class="htwotxt fade-effect" >
-                                    <h3><?php echo $midtitleone; ?> <span><?php echo $midtitle_two; ?></span></h3>
-                                    <?php echo $midtext; ?>
-                                    <?php if ($midlink != "") { ?>
-                                        <a href="<?php echo $midlink; ?>">Learn More <svg xmlns="http://www.w3.org/2000/svg" width="20"
-                                                height="20" viewBox="0 0 20 20" fill="none">
-                                                <path d="M15 10.0032H5" stroke="white" stroke-width="1.5" stroke-linecap="round"
-                                                    stroke-linejoin="round" />
-                                                <path d="M10 5L15 10L10 15" stroke="white" stroke-width="1.5" stroke-linecap="round"
-                                                    stroke-linejoin="round" />
-                                            </svg></a>
-                                    <?php } ?>
-                                </div>
+                    <div class="hometwo" id="hometwo<?php echo $flag; ?>">
+                        <div class="hometwodiv section-2x-height-text">
+                            <div class="htwoimg" data-scroll data-scroll-speed="-3">
+                                <img class="one" src="<?php echo $midimage['url']; ?>" alt="<?php echo $midimage['alt']; ?>">
+                                <img class="two" src="<?php echo $midimage_mob['url']; ?>"
+                                    alt="<?php echo $midimage_mob['alt']; ?>">
+                                <img class="three" src="<?php echo $midimage_mobtwo['url']; ?>"
+                                    alt="<?php echo $midimage_mobtwo['alt']; ?>">
                             </div>
-
-                            <!-- <div class="homescroll lastchild">
-                                <a href="#homethrediv">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" fill="none">
-                                        <path d="M7.5 8.75L15 16.25L22.5 8.75" stroke-width="1.5" stroke-linecap="round"
-                                            stroke-linejoin="round" />
-                                        <path d="M22.5 21.25H7.5" stroke-width="1.5" stroke-linecap="round"
-                                            stroke-linejoin="round" />
-                                    </svg>
-                                </a>
-                            </div> -->
+                            <div class="htwotxt" data-scroll data-scroll-sticky
+                                data-scroll-target="#hometwo<?php echo $flag; ?>" data-scroll-speed="-3">
+                                <h3><?php echo $midtitleone; ?> <span><?php echo $midtitle_two; ?></span></h3>
+                                <?php echo $midtext; ?>
+                                <?php if ($midlink != "") { ?>
+                                    <a href="<?php echo $midlink; ?>">Learn More <svg xmlns="http://www.w3.org/2000/svg" width="20"
+                                            height="20" viewBox="0 0 20 20" fill="none">
+                                            <path d="M15 10.0032H5" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                                stroke-linejoin="round" />
+                                            <path d="M10 5L15 10L10 15" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                                stroke-linejoin="round" />
+                                        </svg></a>
+                                <?php } ?>
+                            </div>
                         </div>
-                        <?php $flag++;
-                        $flag_new++;
-                    }
-                endwhile; ?>
-
+                    </div>
+                    <?php $flag++;
+                    $flag_new++; ?>
+                <?php endwhile; ?>
             <?php endif; ?>
-
-
         </div>
-
 
         <?php $company_title = get_field('company_title', $pid);
         $comleft_title = get_field('comleft_title', $pid);
@@ -328,7 +353,7 @@ $pid = $post->ID; ?>
                         <?php while (have_rows('genslider', $pid)):
                             the_row();
                             $image = get_sub_field('image');
-							$Image_Mob = get_sub_field('Image_Mob');
+                            $Image_Mob = get_sub_field('Image_Mob');
                             $right_top_text = get_sub_field('right_top_text');
                             $right_top_button_link = get_sub_field('right_top_button_link');
                             $bottom_title_one = get_sub_field('bottom_title_one');
@@ -339,7 +364,8 @@ $pid = $post->ID; ?>
                                 <div class="hfiveimgsldd">
                                     <div class="hfimg">
                                         <img class="one" alt="<?php echo $image['alt']; ?>" src="<?php echo $image['url']; ?>" />
-                                        <img class="two" alt="<?php echo $Image_Mob['alt']; ?>" src="<?php if ($image != "") { ?><?php echo $Image_Mob['url']; ?><?php } else { ?><?php echo $image['url']; ?><?php } ?>" />
+                                        <img class="two" alt="<?php echo $Image_Mob['alt']; ?>"
+                                            src="<?php if ($image != "") { ?><?php echo $Image_Mob['url']; ?><?php } else { ?><?php echo $image['url']; ?><?php } ?>" />
                                     </div>
                                     <div class="hfiveright">
                                         <p><?php echo $right_top_text; ?></p>
@@ -395,7 +421,7 @@ $pid = $post->ID; ?>
         </div>
 
         <?php $botbackground_image = get_field('botbackground_image', $pid);
-		$botbackground_image_mob = get_field('botbackground_image_mob', $pid);
+        $botbackground_image_mob = get_field('botbackground_image_mob', $pid);
         $botright_top_text = get_field('botright_top_text', $pid);
         $botbutton_link_top = get_field('botbutton_link_top', $pid);
         $botbottom_title_one = get_field('botbottom_title_one', $pid);
@@ -404,8 +430,10 @@ $pid = $post->ID; ?>
         <div class="homeseven">
             <div class="homesevnin">
                 <div class="hsevenimg">
-                	<img class="one" alt="<?php echo $botbackground_image['alt']; ?>" src="<?php echo $botbackground_image['url']; ?>" />
-                    <img class="two" alt="<?php echo $botbackground_image['alt']; ?>" src="<?php if ($botbackground_image_mob != "") { ?><?php echo $botbackground_image_mob['url']; ?><?php } else { ?><?php echo $botbackground_image['url']; ?><?php } ?>" />
+                    <img class="one" alt="<?php echo $botbackground_image['alt']; ?>"
+                        src="<?php echo $botbackground_image['url']; ?>" />
+                    <img class="two" alt="<?php echo $botbackground_image['alt']; ?>"
+                        src="<?php if ($botbackground_image_mob != "") { ?><?php echo $botbackground_image_mob['url']; ?><?php } else { ?><?php echo $botbackground_image['url']; ?><?php } ?>" />
                 </div>
                 <div class="hsevntop">
                     <p><?php echo $botright_top_text; ?></p>
@@ -429,7 +457,7 @@ $pid = $post->ID; ?>
 
     <?php get_footer(); ?>
     <div class="homescroll">
-        <a href="#">
+        <a href="#homethrediv">
             <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" fill="none">
                 <path d="M7.5 8.75L15 16.25L22.5 8.75" stroke-width="1.5" stroke-linecap="round"
                     stroke-linejoin="round" />
