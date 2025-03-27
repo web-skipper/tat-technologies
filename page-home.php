@@ -97,6 +97,15 @@ $pid = $post->ID; ?>
         opacity: 0;
         pointer-events: none;
     }
+	.fade-effect {
+    opacity: 0;
+    transform: translateY(60px);
+	}
+	.effect-show, #hometwo1 .fade-effect {
+		opacity: 1;
+		transform: translateY(0);
+		transition: opacity 1s, transform 1s;
+	}
 </style>
 
 <div id="main" data-scroll-container>
@@ -163,18 +172,20 @@ $pid = $post->ID; ?>
                     the_row();
                     $midimage = get_sub_field('midimage');
 					$midimage_mob = get_sub_field('midimage_mob');
+					$midimage_mobtwo = get_sub_field('midimage_mobtwo');
                     $midtitleone = get_sub_field('midtitleone');
                     $midtitle_two = get_sub_field('midtitle_two');
                     $midtext = get_sub_field('midtext');
                     $midlink = get_sub_field('midlink'); ?>
                     <?php if ($midimage != "") { ?>
                         <div class="hometwo" id="hometwo<?php echo $flag; ?>">
-                            <div class="hometwodiv">
-                                <div class="htwoimg" data-scroll data-scroll-speed="-1">
+                            <div class="hometwodiv section-2x-height-text">
+                                <div class="htwoimg" data-scroll data-scroll-speed="-3">
                                 	<img class="one" alt="<?php echo $midimage['alt']; ?>" src="<?php echo $midimage['url']; ?>" />
                                     <img class="two" alt="<?php echo $midimage_mob['alt']; ?>" src="<?php if ($midimage_mob != "") { ?><?php echo $midimage_mob['url']; ?><?php } else { ?><?php echo $midimage['url']; ?><?php } ?>" />
+                                    <img class="three" alt="<?php echo $midimage_mobtwo['alt']; ?>" src="<?php if ($midimage_mobtwo != "") { ?><?php echo $midimage_mobtwo['url']; ?><?php } else { ?><?php echo $midimage_mob['url']; ?><?php } ?>" />
                                 </div>
-                                <div class="htwotxt" data-scroll data-scroll-speed="2">
+                                <div class="htwotxt fade-effect" >
                                     <h3><?php echo $midtitleone; ?> <span><?php echo $midtitle_two; ?></span></h3>
                                     <?php echo $midtext; ?>
                                     <?php if ($midlink != "") { ?>
