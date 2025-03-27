@@ -10,9 +10,12 @@ $pid = $post->ID; ?>
           } ?></div>
         <div class="combanimg"><img alt="" src="<?php bloginfo('template_directory'); ?>/images/comban.jpg" /></div>
 
-        <div class="combanlayer"><img alt="layer"
-                src="<?php bloginfo('template_directory'); ?>/images/companybanlayer.svg" /></div>
-
+        <?php if (isset($banner['header_curved_lines_image']) && !empty($banner['header_curved_lines_image']['ID'])): ?>
+            <div class="combanlayer">
+                <img alt="<?php echo $banner['header_curved_lines_image']['alt']; ?>"
+                    src="<?php echo $banner['header_curved_lines_image']['url']; ?>" />
+            </div>
+        <?php endif; ?>
         <div class="companybantxt">
             <?php if ($banner['title_left_one'] != ""): ?>
                 <h1><?= $banner['title_left_one']; ?></h1>
