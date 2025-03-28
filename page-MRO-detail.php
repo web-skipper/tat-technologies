@@ -12,8 +12,8 @@ if ($parent_id) {
     <?php $banner = get_field('banner', $pid); ?>
     <div class="mroban">
         <div class="breadcrumbs">
-            <a href="<?php bloginfo('url'); ?>">Home</a><span class="breadarow"></span>
-            <a href="<?= $parent_link; ?>">Commercial</a>
+            <a href="<?php bloginfo('url'); ?>">Home</a><?php /*?><span class="breadarow"></span>
+<a href="<?= $parent_link; ?>">Commercial</a><?php */ ?>
             <?php if (function_exists('bcn_display')) {
                 bcn_display();
             } ?>
@@ -26,9 +26,12 @@ if ($parent_id) {
                 </div>
             <?php endif; ?>
 
-            <div class="overlwy-detail">
-                <img alt="" src="<?php bloginfo('template_directory'); ?>/images/mro_detail_overlay.png" />
-            </div>
+            <?php if (isset($banner['header_curved_lines_image']) && !empty($banner['header_curved_lines_image']['ID'])): ?>
+                <div class="overlwy-detail">
+                    <img alt="<?php echo $banner['header_curved_lines_image']['alt']; ?>"
+                        src="<?php echo $banner['header_curved_lines_image']['url']; ?>" />
+                </div>
+            <?php endif; ?>
         </div>
         <div class="mrobantxt">
             <?php if ($banner['title_left_one'] != ""): ?>
@@ -270,7 +273,7 @@ stroke-linejoin="round"></path>
     <script type="text/javascript">
         jQuery(document).ready(function ($) {
             $('.mro_slider_cat').owlCarousel({
-                loop: true,
+                loop: false,
                 margin: 55,
                 nav: true,
                 navText: [$('.mro-prev'), $('.mro-next')],

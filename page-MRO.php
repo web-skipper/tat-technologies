@@ -19,8 +19,9 @@ $pid = $post->ID; ?>
         </div>
 
         <div class="mrobanlayer">
-            <?php if (isset($banner['image']) && !empty($banner['image']['ID'])): ?>
-                <img alt="<?php echo $banner['image']['url']; ?>" src="<?php echo $banner['image']['url']; ?>" />
+            <?php if (isset($banner['header_curved_lines_image']) && !empty($banner['header_curved_lines_image']['ID'])): ?>
+                <img alt="<?php echo $banner['header_curved_lines_image']['url']; ?>"
+                    src="<?php echo $banner['header_curved_lines_image']['url']; ?>" />
             <?php endif; ?>
         </div>
 
