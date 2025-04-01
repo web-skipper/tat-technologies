@@ -16,15 +16,42 @@ $pid = $post->ID; ?>
 
         <div class="inbanimg">
             <?php if (isset($banner['image']) && !empty($banner['image']['ID'])): ?>
-                <img alt="<?php echo $banner['image']['alt']; ?>" src="<?php echo $banner['image']['url']; ?>" />
+                <img class="desktop_com_img" alt="<?php echo $banner['image']['alt']; ?>"
+                    src="<?php echo $banner['image']['url']; ?>" />
             <?php endif; ?>
+            <img class="tablet_com_img" alt="<?php echo $banner['image_tablet']['alt']; ?>" src="<?php if ($banner['image_tablet']['url'] != "") {
+                   echo $banner['image_tablet']['url'];
+               } else {
+                   echo $banner['image']['url'];
+               } ?>" />
+            <img class="mobile_com_img" alt="<?php echo $banner['image_mobile']['alt']; ?>" src="<?php if ($banner['image_mobile']['url'] != "") {
+                   echo $banner['image_mobile']['url'];
+               } else {
+                   echo $banner['image']['url'];
+               } ?>" />
         </div>
 
         <div class="inbanlayer">
             <?php if (isset($banner['header_curved_lines_image']) && !empty($banner['header_curved_lines_image']['ID'])): ?>
-                <img alt="<?php echo $banner['header_curved_lines_image']['alt']; ?>"
+                <img class="desktop_com_img" alt="<?php echo $banner['header_curved_lines_image']['alt']; ?>"
                     src="<?php echo $banner['header_curved_lines_image']['url']; ?>" />
             <?php endif; ?>
+
+            <?php if (isset($banner['header_curved_lines_image_tablet']) && !empty($banner['header_curved_lines_image_tablet']['ID'])) { ?>
+                <img class="tablet_com_img" alt="<?php echo $banner['header_curved_lines_image_tablet']['alt']; ?>"
+                    src="<?php echo $banner['header_curved_lines_image_tablet']['url']; ?>" />
+            <?php } else { ?>
+                <img class="tablet_com_img" alt="<?php echo $banner['header_curved_lines_image']['alt']; ?>"
+                    src="<?php echo $banner['header_curved_lines_image']['url']; ?>" />
+            <?php } ?>
+
+            <?php if (isset($banner['header_curved_lines_image_mobile']) && !empty($banner['header_curved_lines_image_mobile']['ID'])) { ?>
+                <img class="mobile_com_img" alt="<?php echo $banner['header_curved_lines_image_mobile']['alt']; ?>"
+                    src="<?php echo $banner['header_curved_lines_image_mobile']['url']; ?>" />
+            <?php } else { ?>
+                <img class="mobile_com_img" alt="<?php echo $banner['header_curved_lines_image']['alt']; ?>"
+                    src="<?php echo $banner['header_curved_lines_image']['url']; ?>" />
+            <?php } ?>
         </div>
 
         <div class="locbantxt">
@@ -68,7 +95,7 @@ $pid = $post->ID; ?>
                                 <?php
                                 $iframe = $location['left_map'];
                                 // $iframe = preg_replace('/(src="[^"]*)/', '$1&zoom=21"', $iframe, 1);
-                                $iframe = adjust_google_maps_zoom($iframe, 411);
+                                $iframe = adjust_google_maps_zoom($iframe, 450);
                                 ?>
                                 <?= $iframe; ?>
                                 <!-- <img src="https://wordpress-733529-5298257.cloudwaysapps.com/wp-content/uploads/2025/03/pin-tat.png"
@@ -89,6 +116,15 @@ $pid = $post->ID; ?>
                         <div class="clr"></div>
                     </div>
                     <div class="locdivright">
+                        <div class="locdivright_mob">
+                            <?php if ($location['center_title_one'] != ""): ?>
+                                <h3><?= $location['center_title_one']; ?></h3>
+                            <?php endif; ?>
+
+                            <?php if ($location['center_title_two'] != ""): ?>
+                                <span><?= $location['center_title_two']; ?></span>
+                            <?php endif; ?>
+                        </div>
                         <div class="locdivrghtxt">
                             <?php if ($location['right_text'] != ""): ?>
                                 <?= $location['right_text']; ?>
@@ -129,7 +165,7 @@ function adjust_google_maps_zoom($iframe, $zoom_level = 10) {
     if (strpos($iframe, 'www.google.com/maps/embed?pb=') !== false) {
         // Adjust the zoom by replacing the appropriate number in pb parameter
         $iframe = preg_replace('/(\!1d)(\d+\.\d+)/', '!1d' . ($zoom_level * 1000), $iframe, 1);
-        $iframe = preg_replace('/(src="[^"]*)/', '$1&maptype=roadmap"', $iframe, 1);
+        $iframe = preg_replace('/(src="[^"]*)/', '$1&maptype=roadmap&hl=en"', $iframe, 1);
     }
     return $iframe;
 }
