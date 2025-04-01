@@ -22,7 +22,6 @@ $pid = $post->ID; ?>
     }
 
     .hometwo {
-        height: 100vh;
         position: relative;
         overflow: hidden;
     }
@@ -112,38 +111,37 @@ $pid = $post->ID; ?>
         transition: opacity 1s, transform 1s;
     }
 
+
+    /* Each full-screen section */
+
+
+    /* Image container */
+    .htwoimg {
+        width: 100%;
+        display: flex;
+
+    }
+
+    /* Images inside should fit and move */
+    .htwoimg img {
+        width: auto;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* Fixed text */
     .htwotxt {
         position: absolute;
-        /* Now relative to .hometwo */
-        bottom: 100px;
-        right: 0;
+        height: max-content;
+        top: 30%;
         z-index: 10;
         width: auto;
-        /* Adjust as needed */
         transition: none;
-        /* Remove any transitions affecting position */
+        animation: fadeInOut 1s forwards;
     }
 
-    /* If you have interactive elements inside htwotxt */
-    .htwotxt * {
-        pointer-events: auto;
-    }
 
-    .htwoimg {
-        position: relative;
-        height: 100vh;
-        z-index: 1;
-        /* Below the text */
-    }
-
-    .htwoimg img {
-        position: absolute;
-        width: 100%;
-        height: 100vh;
-        object-fit: cover;
-        transform: translate3d(0, 0, 0);
-        /* Helps with performance */
-    }
+    /* Continue for all sections */
 </style>
 
 <div id="main" data-scroll-container>
@@ -216,17 +214,17 @@ $pid = $post->ID; ?>
                     $midtitle_two = get_sub_field('midtitle_two');
                     $midtext = get_sub_field('midtext');
                     $midlink = get_sub_field('midlink'); ?>
-                    <div class="hometwo" id="hometwo<?php echo $flag; ?>">
+                    <div class="hometwo parallax-section" id="hometwo<?php echo $flag; ?>">
                         <div class="hometwodiv section-2x-height-text">
-                            <div class="htwoimg" data-scroll data-scroll-speed="-3">
-                                <img class="one" src="<?php echo $midimage['url']; ?>" alt="<?php echo $midimage['alt']; ?>">
+                            <div class="htwoimg" id="htwoimg<?php echo $flag; ?>">
+                                <img class=" one" src="<?php echo $midimage['url']; ?>" alt="<?php echo $midimage['alt']; ?>">
                                 <img class="two" src="<?php echo $midimage_mob['url']; ?>"
                                     alt="<?php echo $midimage_mob['alt']; ?>">
                                 <img class="three" src="<?php echo $midimage_mobtwo['url']; ?>"
                                     alt="<?php echo $midimage_mobtwo['alt']; ?>">
                             </div>
                             <div class="htwotxt" data-scroll data-scroll-sticky
-                                data-scroll-target="#hometwo<?php echo $flag; ?>" data-scroll-speed="-3">
+                                data-scroll-target="#hometwo<?php echo $flag; ?>">
                                 <h3><?php echo $midtitleone; ?> <span><?php echo $midtitle_two; ?></span></h3>
                                 <?php echo $midtext; ?>
                                 <?php if ($midlink != "") { ?>
@@ -354,6 +352,7 @@ $pid = $post->ID; ?>
                             the_row();
                             $image = get_sub_field('image');
                             $Image_Mob = get_sub_field('Image_Mob');
+                            $image_mob2 = get_sub_field('image_mob2');
                             $right_top_text = get_sub_field('right_top_text');
                             $right_top_button_link = get_sub_field('right_top_button_link');
                             $bottom_title_one = get_sub_field('bottom_title_one');
@@ -365,7 +364,9 @@ $pid = $post->ID; ?>
                                     <div class="hfimg">
                                         <img class="one" alt="<?php echo $image['alt']; ?>" src="<?php echo $image['url']; ?>" />
                                         <img class="two" alt="<?php echo $Image_Mob['alt']; ?>"
-                                            src="<?php if ($image != "") { ?><?php echo $Image_Mob['url']; ?><?php } else { ?><?php echo $image['url']; ?><?php } ?>" />
+                                            src="<?php if ($Image_Mob != "") { ?><?php echo $Image_Mob['url']; ?><?php } else { ?><?php echo $image['url']; ?><?php } ?>" />
+                                        <img class="three" alt="<?php echo $image_mob2['alt']; ?>"
+                                            src="<?php if ($image_mob2 != "") { ?><?php echo $image_mob2['url']; ?><?php } else { ?><?php echo $Image_Mob['url']; ?><?php } ?>" />
                                     </div>
                                     <div class="hfiveright">
                                         <p><?php echo $right_top_text; ?></p>
@@ -404,8 +405,23 @@ $pid = $post->ID; ?>
                 <div class="homesixtop"><?php echo $custmain_title; ?></div>
             <?php } ?>
             <?php if (have_rows('logo_list', 'option')): ?>
-                <div class="hsixlogos">
+                <div class="hsixlogos hsixlogosdesk">
                     <ul class="hsixslider owl-carousel">
+                        <?php while (have_rows('logo_list', 'option')):
+                            the_row();
+                            $logoimage = get_sub_field('logoimage'); ?>
+                            <?php if ($logoimage != "") { ?>
+                                <li>
+                                    <img alt="<?php echo $logoimage['alt']; ?>" src="<?php echo $logoimage['url']; ?>" />
+                                </li>
+                            <?php } ?>
+                        <?php endwhile; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
+            <?php if (have_rows('logo_list', 'option')): ?>
+                <div class="hsixlogos hsixlogosmob">
+                    <ul>
                         <?php while (have_rows('logo_list', 'option')):
                             the_row();
                             $logoimage = get_sub_field('logoimage'); ?>
@@ -422,6 +438,7 @@ $pid = $post->ID; ?>
 
         <?php $botbackground_image = get_field('botbackground_image', $pid);
         $botbackground_image_mob = get_field('botbackground_image_mob', $pid);
+        $botbackground_image_mob2 = get_field('botbackground_image_mob2', $pid);
         $botright_top_text = get_field('botright_top_text', $pid);
         $botbutton_link_top = get_field('botbutton_link_top', $pid);
         $botbottom_title_one = get_field('botbottom_title_one', $pid);
@@ -434,6 +451,8 @@ $pid = $post->ID; ?>
                         src="<?php echo $botbackground_image['url']; ?>" />
                     <img class="two" alt="<?php echo $botbackground_image['alt']; ?>"
                         src="<?php if ($botbackground_image_mob != "") { ?><?php echo $botbackground_image_mob['url']; ?><?php } else { ?><?php echo $botbackground_image['url']; ?><?php } ?>" />
+                    <img class="three" alt="<?php echo $botbackground_image_mob2['alt']; ?>"
+                        src="<?php if ($botbackground_image_mob2 != "") { ?><?php echo $botbackground_image_mob2['url']; ?><?php } else { ?><?php echo $botbackground_image_mob['url']; ?><?php } ?>" />
                 </div>
                 <div class="hsevntop">
                     <p><?php echo $botright_top_text; ?></p>
