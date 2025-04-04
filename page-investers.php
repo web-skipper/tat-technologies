@@ -15,8 +15,10 @@ $pid = $post->ID; ?>
 
         <?php if (isset($banner['header_curved_lines_image']) && !empty($banner['header_curved_lines_image']['ID'])): ?>
             <div class="inbanlayer">
-                <img alt="<?php echo $banner['header_curved_lines_image']['alt']; ?>"
+                <img class="inone" alt="<?php echo $banner['header_curved_lines_image']['alt']; ?>"
                     src="<?php echo $banner['header_curved_lines_image']['url']; ?>" />
+                <img class="intwo" alt="<?php echo $banner['header_curved_lines_image2']['alt']; ?>"
+                    src="<?php if ($banner['header_curved_lines_image2'] != "") { ?><?php echo $banner['header_curved_lines_image2']['url']; ?><?php } else { ?><?php echo $banner['header_curved_lines_image']['url']; ?><?php } ?>" />
             </div>
         <?php endif; ?>
 
@@ -26,9 +28,157 @@ $pid = $post->ID; ?>
             <?php endif; ?>
         </div>
         <div class="invstbanright">
-            <div>
-                <?php echo do_shortcode($banner['widget_shortcode_one']); ?>
-                <?php echo do_shortcode($banner['widget_shortcode_two']); ?>
+            <div class="invstbanrightinner">
+                <?php
+                $api_key = 'cvmla7hr01ql90pulmbgcvmla7hr01ql90pulmc0';
+                $symbol_nasdaq = 'TATT'; // NASDAQ symbol
+                $symbol_tase = 'TASE:TATT'; // TASE symbol typically has .TA suffix
+                
+                // Function to fetch stock data
+                function fetch_stock_data($symbol, $api_key) {
+                    $api_url = "https://finnhub.io/api/v1/quote?symbol=$symbol&token=$api_key";
+                    $response = wp_remote_get($api_url);
+
+                    if (!is_wp_error($response)) {
+                        $body = wp_remote_retrieve_body($response);
+                        $data = json_decode($body, true);
+
+                        return [
+                            'price' => $data['c'] ?? 'N/A', // Current price
+                            'change' => $data['d'] ?? 'N/A', // Daily change in value
+                            'change_percent' => $data['dp'] ?? 'N/A', // Daily percentage change
+                            'error' => false,
+                        ];
+                    } else {
+                        return [
+                            'price' => 'N/A',
+                            'change' => 'N/A',
+                            'change_percent' => 'N/A',
+                            'error' => true,
+                        ];
+                    }
+                }
+
+                // Fetch data for both exchanges
+                $transient_key = 'nasdaq_stock_data';
+                $nasdaq_data = get_transient($transient_key);
+
+                if (false === $nasdaq_data) {
+                    $nasdaq_data = fetch_stock_data($symbol_nasdaq, $api_key);
+                    set_transient($transient_key, $nasdaq_data, 60); // Store for 1 minute
+                }
+                ?>
+                <?php if ($nasdaq_data): ?>
+                    <div class="stock-widget-1 jchartfx_container">
+                        <div class="ticker-wrap" style="">
+                            <div class="stock-header"
+                                style="line-height: 130%; width: 100%; white-space: nowrap; text-overflow: ellipsis; opacity: 0.75; font-size:13px;">
+                                NASDAQ: TAT Technologies Ltd.</div>
+                            <div class="stock-price" style="font-size: 24pt;">
+                                TATT
+                            </div>
+                            <div class="stock-price-stat" style="display:flex;justify-content:space-between;">
+                                <div>
+                                    <span class="<?php echo ($nasdaq_data['change'] >= 0) ? 'up' : 'down'; ?>">
+                                        <?php if ($nasdaq_data['change'] >= 0): ?>
+                                            <span style="color:green;" class="dashicons dashicons-arrow-up-alt"></span>
+                                        <?php else: ?>
+                                            <span style="color:red;" class="dashicons dashicons-arrow-down-alt"></span>
+                                        <?php endif; ?>
+                                        <span>$<?php echo number_format($nasdaq_data['price'], 3); ?></span>
+                                </div>
+                                <div style="display: flex;flex-direction: column;gap: 5px;font-size: 13px;opacity: 0.80;">
+                                    <span><?php echo number_format($nasdaq_data['change'], 3); ?></span>
+                                    <span><?php echo number_format($nasdaq_data['change_percent'], 2) . '%'; ?></span>
+                                </div>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <?php
+                function fetch_tase_stock_data_from_yahoo($symbol) {
+                    // Format symbol for TASE (Yahoo uses ".TA" suffix for Tel Aviv stocks)
+                    $yahoo_symbol = $symbol . '.TA';
+
+                    // Yahoo Finance API endpoint (unofficial)
+                    $api_url = "https://query1.finance.yahoo.com/v8/finance/chart/{$yahoo_symbol}?interval=1d";
+
+                    $response = wp_remote_get($api_url, [
+                        'timeout' => 10,
+                        'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36' // Yahoo blocks empty User-Agent
+                    ]);
+
+                    if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
+                        $body = wp_remote_retrieve_body($response);
+                        $data = json_decode($body, true);
+
+                        // Extract latest price and change data
+                        $meta = $data['chart']['result'][0]['meta'] ?? null;
+                        $previous_close = $meta['chartPreviousClose'] ?? 0;
+                        $current_price = $meta['regularMarketPrice'] ?? 0;
+
+                        // Calculate change values
+                        $change = $current_price - $previous_close;
+                        $change_percent = ($previous_close != 0) ? ($change / $previous_close) * 100 : 0;
+
+                        return [
+                            'price' => $current_price ? number_format($current_price, 3) : 'N/A',
+                            'change' => number_format($change, 3),
+                            'change_percent' => number_format($change_percent, 2),
+                            'error' => false,
+                        ];
+                    } else {
+                        return [
+                            'price' => 'N/A',
+                            'change' => 'N/A',
+                            'change_percent' => 'N/A',
+                            'error' => true,
+                        ];
+                    }
+                }
+
+                // Cache with Transients (15 minutes to avoid rate limits)
+                $transient_key = 'tase_stock_data_tatt';
+                $tase_data = get_transient($transient_key);
+
+                if (false === $tase_data) {
+                    $tase_data = fetch_tase_stock_data_from_yahoo('TATT'); // Symbol without ".TA" suffix
+                    set_transient($transient_key, $tase_data, 15 * MINUTE_IN_SECONDS); // Cache for 15 mins
+                }
+                ?>
+                <?php if ($tase_data && !$tase_data['error']): ?>
+                    <div class="stock-widget-1 jchartfx_container" style="">
+                        <div class="ticker-wrap" style="">
+                            <div class="stock-header"
+                                style="line-height: 130%; width: 100%; white-space: nowrap; text-overflow: ellipsis; opacity: 0.75; font-size:13px;">
+                                TASE: TAT Technologies Ltd.
+                            </div>
+                            <div class="stock-price" style="font-size: 24pt;">
+                                TATT
+                            </div>
+                            <div class="stock-price-stat" style="display:flex;justify-content:space-between;">
+                                <div>
+                                    <span class="<?php echo ($tase_data['change'] >= 0) ? 'up' : 'down'; ?>">
+                                        <?php if ($tase_data['change'] >= 0): ?>
+                                            <span style="color:green;" class="dashicons dashicons-arrow-up-alt"></span>
+                                        <?php else: ?>
+                                            <span style="color:red;" class="dashicons dashicons-arrow-down-alt"></span>
+                                        <?php endif; ?>
+                                        <span>$<?php echo $tase_data['price']; ?></span>
+                                    </span>
+                                </div>
+                                <div style="display: flex;flex-direction: column;gap: 5px;font-size: 13px;opacity: 0.80;">
+                                    <span><?php echo $tase_data['change']; ?></span>
+                                    <span><?php echo $tase_data['change_percent'] . '%'; ?></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+                <?php //echo do_shortcode($banner['widget_shortcode_one']); ?>
+                <?php //echo do_shortcode($banner['widget_shortcode_two']); ?>
             </div>
             <div>
                 <div class="invslrbut">
@@ -44,11 +194,14 @@ $pid = $post->ID; ?>
             </div>
             <!-- <img alt="layer" src="<?php bloginfo('template_directory'); ?>/images/stockimg.png" /> -->
         </div>
+
+
     </div>
 
     <?php $our_mission = get_field('our_mission', $pid); ?>
 
     <div class="invsmid">
+
         <div class="invsmenu">
             <ul>
                 <li><a href="#earning-reports">Earnings Reports</a></li>
@@ -121,6 +274,7 @@ $pid = $post->ID; ?>
                     </svg>
                 </a>
             <?php endif; ?>
+            <div class="clr"></div>
         </div>
         <div class="invearright">
             <?php if ($earnings_reports['repports']): ?>
@@ -157,6 +311,7 @@ $pid = $post->ID; ?>
                     </svg>
                 </a>
             <?php endif; ?>
+            <div class="clr"></div>
         </div>
         <div class="invstrelright">
             <ul>
@@ -209,6 +364,7 @@ $pid = $post->ID; ?>
                     </svg>
                 </a>
             <?php endif; ?>
+            <div class="clr"></div>
         </div>
         <?php //print_r($upcoming_events['post_category']); ?>
         <div class="invsmidupmevrigt">
@@ -239,7 +395,31 @@ $pid = $post->ID; ?>
                         'post_tags' => $post_tags,
                     );
                     ?>
-                    <?php get_template_part('template-parts/content', 'investor-event', $args); ?>
+                    <?php
+                    $event_date = get_field('event_dates');
+                    $timestamp = strtotime($event_date);
+                    ?>
+                    <div class="upcmevdiv <?= $timestamp && $timestamp > time() ? 'upcomingdiv' : ''; ?>"
+                        data-terms="<?= implode(',', $args['post_terms']); ?>"
+                        data-tags="<?= implode(',', $args['post_tags']); ?>">
+                        <div class="upcmdlft">
+                            <?php if ($timestamp): ?>
+                                <div class="upcmonth">
+                                    <?php echo strtoupper(date('M y', $timestamp)); ?>
+
+                                    <span><?php echo date('j', $timestamp); ?></span>
+                                </div>
+                                <?php if ($timestamp && $timestamp > time()): ?>
+                                    <p>Upcoming</p>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
+                        <div class="upcmdright">
+                            <a href="<?php echo get_permalink(); ?>"><?php the_title(); ?></a>
+                        </div>
+                        <div class="clr"></div>
+                    </div>
+                    <?php //get_template_part('template-parts/content', 'investor-event', $args); ?>
                     <?php $postloopindex++;
                 }
                 wp_reset_postdata();
@@ -300,6 +480,12 @@ $pid = $post->ID; ?>
 
     <?php $investor_contact = get_field('investor_contact', $pid); ?>
     <div class="invcon" id="investor-contact">
+        <div class="invconright">
+            <?php if ($investor_contact['title_left_one'] != ""): ?>
+                <h3><?= $investor_contact['title_left_one']; ?></h3>
+            <?php endif; ?>
+            <?php echo do_shortcode($investor_contact['form_shortcode_right']); ?>
+        </div>
         <div class="invconleft">
             <?php if ($investor_contact['title_left_one'] != ""): ?>
                 <h3><?= $investor_contact['title_left_one']; ?></h3>
@@ -397,16 +583,61 @@ $pid = $post->ID; ?>
                 <?php endif; ?>
             </div>
         </div>
-        <div class="invconright">
-            <?php echo do_shortcode($investor_contact['form_shortcode_right']); ?>
-        </div>
         <div class="clr"></div>
     </div>
 
 </div>
 
 <?php get_footer(); ?>
+<style>
+    .invstbanright {
+        right: 5%;
+    }
 
+    .stock-widget-1.jchartfx_container {
+        width: 100%;
+        box-sizing: border-box;
+        border: none !important;
+        box-shadow: none !important;
+        height: 114px;
+        color: #fff;
+    }
+
+    .stock-widget-1 .ticker-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    @media (max-width: 600px) {
+        .stock-widget-1 .ticker-wrap {
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stock-widget-1 .ticker-wrap .stock-header {
+            width: 100%;
+            order: 1;
+        }
+
+        .stock-widget-1 .ticker-wrap .stock-price {
+            order: 2;
+        }
+
+        .stock-widget-1 .ticker-wrap .stock-price-stat {
+            order: 3;
+        }
+    }
+
+    .invstbanrightinner {
+        display: flex;
+        width: 100%;
+        justify-content: flex-start;
+        gap: 20px;
+    }
+</style>
 <script type="text/javascript">
     jQuery(document).ready(function ($) {
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
