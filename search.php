@@ -35,8 +35,11 @@ $custom_query = new WP_Query($args);
                 </form>
             </div>
         </div>
-        <div class="inbanlayer">
-            <img alt="layer" src="<?php bloginfo('template_directory'); ?>/images/searchbanlayer.svg" />
+        <div class="sinbanlayer">
+            <img class="one" alt="layer" src="<?php bloginfo('template_directory'); ?>/images/searchbanlayer.svg" />
+            <img class="two" alt="layer" src="<?php bloginfo('template_directory'); ?>/images/searchbanlayer2.svg" />
+            <img class="three" alt="layer" src="<?php bloginfo('template_directory'); ?>/images/searchbanlayer3.svg" />
+            <img class="four" alt="layer" src="<?php bloginfo('template_directory'); ?>/images/searchbanlayer4.svg" />
         </div>
     </div>
     <div class="searchtop">
@@ -53,7 +56,6 @@ $custom_query = new WP_Query($args);
         <div class="sectopright">
             <div class="serctopmid">
                 <?php
-
 
                 // Get the current page number
                 $paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
@@ -73,6 +75,16 @@ $custom_query = new WP_Query($args);
                 ?>
             </div>
             <div class="sertoprcat">
+                <form id="responsive-sort-1024" method="get" action="<?php echo home_url('/'); ?>">
+                    <select name="orderby" onchange="this.form.submit()">
+                        <option value="">Sort by</option>
+                        <option value="date" <?php echo ($orderby == 'date') ? 'selected' : ''; ?>>Newest</option>
+                        <option value="relevance" <?php echo ($orderby == 'relevance') ? 'selected' : ''; ?>>Relevance
+                        </option>
+                    </select>
+                    <input type="hidden" name="s" value="<?php echo get_search_query(); ?>">
+                    <input type="hidden" name="order" value="<?php echo ($orderby == 'date') ? 'DESC' : 'ASC'; ?>">
+                </form>
                 <div class="searcatsel">
                     <form id="category-filter" method="get" action="<?php bloginfo('home'); ?>/">
                         <select name="cat" onchange="this.form.submit()">
@@ -120,11 +132,12 @@ $custom_query = new WP_Query($args);
                                 <p><?php echo wp_trim_words(get_the_content(), 19, '...'); ?></p>
                             </div>
                             <div class="seachllft">
-
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M7.91797 5L12.918 10L7.91797 15" stroke="#2E313F" stroke-width="1.5"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
+                                <a href="<?php the_permalink() ?>">
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M7.91797 5L12.918 10L7.91797 15" stroke="#2E313F" stroke-width="1.5"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
                                 </a>
                             </div>
                             <div class="clr"></div>
@@ -148,10 +161,6 @@ $custom_query = new WP_Query($args);
             <div class="clr"></div>
         </div>
     <?php endif; ?>
-
-
-
-
 </div>
 
 
